@@ -3,19 +3,22 @@ package androidpractice.demo.com.citrixtestproject;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
     private ArrayList<Contacts> contactsList;
+    private ArrayList<Contacts> displayContactsList;
     private Context ctx;
     private LayoutInflater layoutInflater;
 
@@ -24,6 +27,7 @@ public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
     public ContactsRecyclerAdapter(MainActivity mainActivity, ArrayList<Contacts> contactsList) {
         this.ctx = mainActivity;
         this.contactsList = contactsList;
+        this.displayContactsList = contactsList;
         this.layoutInflater = LayoutInflater.from(mainActivity);
     }
 
@@ -65,7 +69,7 @@ public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
                 tv.setText("Details:");
                 detailsLayout.addView(tv);
 
-                for (String key:contactsList.get(position).getContactDetails().keySet()){
+                for (String key:displayContactsList.get(position).getContactDetails().keySet()){
 
                     RelativeLayout.LayoutParams lparams2 = new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -74,7 +78,7 @@ public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
                     tv2.setText("\t"+key+":");
                     detailsLayout.addView(tv2);
 
-                    ArrayList<String> detailsarray = contactsList.get(position).getContactDetails().get(key);
+                    ArrayList<String> detailsarray = displayContactsList.get(position).getContactDetails().get(key);
 
                     for(int i=0;i<detailsarray.size();i++){
 
@@ -120,6 +124,52 @@ public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemCount() {
-        return contactsList.size();
+        return displayContactsList.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence searchString) {
+                FilterResults oReturn = null;
+                ArrayList<Contacts> results;
+
+                if (!TextUtils.isEmpty(searchString))
+                {
+                    oReturn = new FilterResults();
+                    results = new ArrayList<>();
+
+                    for(Contacts contacts:contactsList){
+                        if (contacts.getContactName().toLowerCase().contains(((String) searchString).toLowerCase())){
+                            results.add(contacts);
+                        }
+                    }
+
+
+                    oReturn.values = results;
+
+                }
+
+                return oReturn;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                if (!TextUtils.isEmpty(charSequence) && filterResults!=null)
+                {
+                    displayContactsList = (ArrayList<Contacts>) filterResults.values;
+                    notifyDataSetChanged();
+                }
+                else
+                {
+                    constructDisplayList();
+                }
+            }
+        };
+    }
+
+    private void constructDisplayList() {
+        displayContactsList = contactsList;
     }
 }

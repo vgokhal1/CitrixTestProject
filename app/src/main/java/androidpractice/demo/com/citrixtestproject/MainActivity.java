@@ -4,16 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.SearchView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     ContactsRecyclerAdapter contactsRecyclerAdapter;
     RecyclerView contactsRecyclerview;
+    SearchView contactsSearch;
 
 
     @Override
@@ -46,6 +45,27 @@ public class MainActivity extends AppCompatActivity {
 
         exploreFiles = (FloatingActionButton) findViewById(R.id.explore_button);
         contactsRecyclerview = (RecyclerView) findViewById(R.id.contacts_recyclerview);
+        contactsSearch = (SearchView) findViewById(R.id.contacts_searchview);
+
+        contactsSearch.setQueryHint("Search...");
+        contactsSearch.onActionViewExpanded();
+        contactsSearch.setIconified(false);
+        contactsSearch.clearFocus();
+
+        contactsSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (contactsRecyclerAdapter !=null && contactsRecyclerAdapter.getFilter() != null)
+                    contactsRecyclerAdapter.getFilter().filter(newText);
+
+                return false;
+            }
+        });
 
         contactsRecyclerview.setLayoutManager(new LinearLayoutManager(this));
 
