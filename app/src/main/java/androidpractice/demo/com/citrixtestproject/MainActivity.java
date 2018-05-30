@@ -1,6 +1,8 @@
 package androidpractice.demo.com.citrixtestproject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -11,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 
 import org.json.JSONArray;
@@ -31,17 +34,20 @@ public class MainActivity extends AppCompatActivity {
     String filePath, fileData;
     Uri fileUri;
     private static final int READ_REQUEST_CODE = 4;
-    ArrayList<Contacts> contactsList = new ArrayList<>();
+    ArrayList<Contacts> contactsList;
 
     ContactsRecyclerAdapter contactsRecyclerAdapter;
     RecyclerView contactsRecyclerview;
     SearchView contactsSearch;
+    RelativeLayout defaultContent;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        defaultContent = (RelativeLayout) findViewById(R.id.nothing_to_show);
 
         exploreFiles = (FloatingActionButton) findViewById(R.id.explore_button);
         contactsRecyclerview = (RecyclerView) findViewById(R.id.contacts_recyclerview);
@@ -87,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         Intent chooseFile = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
         chooseFile.setType("*/*");
-//                chooseFile = Intent.createChooser(chooseFile, "Choose a file");
+        chooseFile = Intent.createChooser(chooseFile, "Choose a file type...");
         startActivityForResult(chooseFile, READ_REQUEST_CODE);
     }
 
@@ -97,23 +103,15 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if (data != null) {
                 fileUri = data.getData();
-//                Log.e("SelectedFile", "Uri: " + fileUri.toString());
-
-                filePath = fileUri.getPath();
-//                Log.e("SelectedFile", "Url: " + filePath);
 
                 try {
                     fileData = loadJSONFromFile(fileUri);
-//                    Log.e("SelectedFile", "FileData: " + fileData);
 
                     JSONObject jsonObject = new JSONObject(fileData);
-//                    Log.e("SelectedFile", "JSONData: " + jsonObject.toString());
-
                     JSONArray jsonArray = jsonObject.getJSONArray("contacts");
-//                    Log.e("SelectedFile", "JSONArrayData: " + jsonArray);
 
-//                    Log.e("SelectedFile", "JSONArrayDataLength: " + jsonArray.length());
-
+                    contactsList = new ArrayList<>();
+                    defaultContent.setVisibility(View.GONE);
 
                     for(int i=0;i<jsonArray.length();i++){
 
@@ -122,16 +120,12 @@ public class MainActivity extends AppCompatActivity {
                         Contacts contacts = new Contacts();
                         LinkedHashMap<String,ArrayList<String>> contactDetails = new LinkedHashMap<>();
 
-//                        Log.e("SelectedFile", "JSONObjectData: " + js.toString());
-
                         Iterator<String> iter = js.keys();
                         while (iter.hasNext()){
                             String key = iter.next();
                             if (key.contains("companyName") | key.contains("name")){
 
                                 String name = (String) js.get(key);
-
-//                                Log.e("SelectedFile", "JSONObjectDataEntry: " +key+" "+name);
 
                                 contacts.setContactName(name);
                             }
@@ -142,8 +136,6 @@ public class MainActivity extends AppCompatActivity {
                                     if (val instanceof JSONObject){
 
                                         String jsonvalue = (String) js.get(key);
-
-//                                        Log.e("SelectedFile", "JSONObjectDataEntry: " +key+" "+jsonvalue);
 
                                         ArrayList<String> value = new ArrayList<>();
                                         value.add(jsonvalue);
@@ -171,15 +163,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
-//                        Log.e("SelectedFile", "ContactData: " + contacts.toString());
-
                         contacts.setContactDetails(contactDetails);
                         contactsList.add(contacts);
 
-//                        Log.e("SelectedFile", "ContactKeys: " + contactsList.size());
                     }
-
-//                    Log.e("SelectedFile", "ContactLength: " + contactsList.size());
 
                     contactsRecyclerAdapter = new ContactsRecyclerAdapter(MainActivity.this,contactsList);
                     contactsRecyclerview.setAdapter(contactsRecyclerAdapter);
@@ -189,6 +176,17 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 } catch (JSONException e) {
                     e.printStackTrace();
+
+                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                    alertDialog.setTitle("Oops...");
+                    alertDialog.setMessage("Please select a valid file... ");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
                 }
             }
         }

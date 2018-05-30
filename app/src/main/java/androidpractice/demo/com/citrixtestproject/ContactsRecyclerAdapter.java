@@ -52,7 +52,7 @@ public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
 
         if (elementLayout!=null){
 
-            contactsViewHolder.getContactName().setText(contactsList.get(position).getContactName());
+            contactsViewHolder.getContactName().setText(displayContactsList.get(position).getContactName());
 
             if (currentSelectedElement == position){
 
@@ -141,8 +141,10 @@ public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
                     results = new ArrayList<>();
 
                     for(Contacts contacts:contactsList){
+
                         if (contacts.getContactName().toLowerCase().contains(((String) searchString).toLowerCase())){
                             results.add(contacts);
+
                         }
                     }
 
