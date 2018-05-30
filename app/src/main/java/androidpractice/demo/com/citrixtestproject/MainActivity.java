@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     String filePath, fileData;
     Uri fileUri;
     private static final int READ_REQUEST_CODE = 4;
-    ArrayList<Contacts> contactsList = new ArrayList<>();
+    ArrayList<Contacts> contactsList;
 
     ContactsRecyclerAdapter contactsRecyclerAdapter;
     RecyclerView contactsRecyclerview;
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(fileData);
                     JSONArray jsonArray = jsonObject.getJSONArray("contacts");
 
-//                    contactsList = new ArrayList<>();
+                    contactsList = new ArrayList<>();
                     defaultContent.setVisibility(View.GONE);
 
                     for(int i=0;i<jsonArray.length();i++){
