@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     String filePath, fileData;
     Uri fileUri;
     private static final int READ_REQUEST_CODE = 4;
-    ArrayList<Contacts> contactsList;
+    ArrayList<Contacts> contactsList = new ArrayList<>();
 
     ContactsRecyclerAdapter contactsRecyclerAdapter;
     RecyclerView contactsRecyclerview;
@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         contactsRecyclerview = (RecyclerView) findViewById(R.id.contacts_recyclerview);
         contactsSearch = (SearchView) findViewById(R.id.contacts_searchview);
 
+        //Setting the initial state of the SearchView....
         contactsSearch.setQueryHint("Search...");
         contactsSearch.onActionViewExpanded();
         contactsSearch.setIconified(false);
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                //First check if it has the permissions and then proceed...
                 if (Permissions.hasStorageReadWritePermissionGranted(MainActivity.this)){
                     openFileChooser();
                 }
@@ -104,13 +106,14 @@ public class MainActivity extends AppCompatActivity {
             if (data != null) {
                 fileUri = data.getData();
 
+                //Parse JSON and form contact objects based on the data....
                 try {
                     fileData = loadJSONFromFile(fileUri);
 
                     JSONObject jsonObject = new JSONObject(fileData);
                     JSONArray jsonArray = jsonObject.getJSONArray("contacts");
 
-                    contactsList = new ArrayList<>();
+//                    contactsList = new ArrayList<>();
                     defaultContent.setVisibility(View.GONE);
 
                     for(int i=0;i<jsonArray.length();i++){

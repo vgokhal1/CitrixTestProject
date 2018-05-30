@@ -54,6 +54,7 @@ public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
 
             contactsViewHolder.getContactName().setText(displayContactsList.get(position).getContactName());
 
+            //Only show details for contact that has been clicked....
             if (currentSelectedElement == position){
 
                 contactsViewHolder.getExpand().setImageDrawable(ctx.getResources().getDrawable(R.drawable.ic_unexplore));
@@ -62,6 +63,7 @@ public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
                 detailsLayout.removeAllViews();
                 detailsLayout.setVisibility(View.VISIBLE);
 
+                //Default label "Details"...
                 RelativeLayout.LayoutParams lparams = new RelativeLayout.LayoutParams(
                         RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                 TextView tv=new TextView(ctx);
@@ -144,13 +146,9 @@ public class ContactsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.V
 
                         if (contacts.getContactName().toLowerCase().contains(((String) searchString).toLowerCase())){
                             results.add(contacts);
-
                         }
                     }
-
-
                     oReturn.values = results;
-
                 }
 
                 return oReturn;
